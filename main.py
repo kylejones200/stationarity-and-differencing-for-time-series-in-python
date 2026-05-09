@@ -7,6 +7,12 @@ Visualize original series and successive differences (+ADF diagnostics).
 import sys
 from pathlib import Path
 
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 # Add src to path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -129,7 +135,7 @@ def main():
     
     # Load series
     series = load_series(config)
-    print(f"Loaded {len(series)} data points")
+    logger.info(f"Loaded {len(series)} data points")
     
     max_order = config["model"]["max_difference_order"]
     series_list = compute_differences(series, max_order)
@@ -139,12 +145,12 @@ def main():
     output_dir = ensure_output_dir(get_output_dir(config, script_dir))
     metrics_path = output_dir / "adf_results.csv"
     pd.DataFrame(adf_results).to_csv(metrics_path, index=False, encoding="utf-8")
-    print(f"ADF results saved to {metrics_path}")
+    logger.info(f"ADF results saved to {metrics_path}")
     
     # Plot differences
     plot_differences(series_list, config, adf_results, script_dir)
     
-    print("\n Differencing analysis complete")
+    logger.info("\n Differencing analysis complete")
 
 
 if __name__ == "__main__":
