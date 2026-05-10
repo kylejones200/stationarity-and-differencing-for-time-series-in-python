@@ -93,38 +93,39 @@ def plot_differences(
 ) -> None:
     """Plot differences with ADF results."""
     figure_cfg = config["plotting"]
-    fig, axes = plt.subplots(
-        len(series_list), 1, figsize=figure_cfg["figure_size"], sharex=True
-    )
-    if len(series_list) == 1:
-        axes = [axes]
-    
-    for idx, (series, ax) in enumerate(zip(series_list, axes)):
-        ax.plot(
-            series.index,
-            series.values,
-            color=figure_cfg["colors"][0],
-            linewidth=figure_cfg["linewidth"],
-            alpha=figure_cfg["alpha"],
+    if plot:
+        fig, axes = plt.subplots(
+            len(series_list), 1, figsize=figure_cfg["figure_size"], sharex=True
         )
+        if len(series_list) == 1:
+            axes = [axes]
+    
+        for idx, (series, ax) in enumerate(zip(series_list, axes)):
+            ax.plot(
+                series.index,
+                series.values,
+                color=figure_cfg["colors"][0],
+                linewidth=figure_cfg["linewidth"],
+                alpha=figure_cfg["alpha"],
+            )
         
-        title = config["plot_titles"]["base"] if idx == 0 else f"{idx} order difference"
-        info = adf_results[idx]
-        ax.set_title(
-            f"{title} | ADF: {info['ADF Statistic']:.3f}, p={info['p-value']:.3f}"
-        )
-        ax.set_ylabel(config["plotting"].get("y_label", "Value"))
+            title = config["plot_titles"]["base"] if idx == 0 else f"{idx} order difference"
+            info = adf_results[idx]
+            ax.set_title(
+                f"{title} | ADF: {info['ADF Statistic']:.3f}, p={info['p-value']:.3f}"
+            )
+            ax.set_ylabel(config["plotting"].get("y_label", "Value"))
     
-    axes[-1].set_xlabel(config["plotting"].get("x_label", "Date"))
+        axes[-1].set_xlabel(config["plotting"].get("x_label", "Date"))
     
-    plt.tight_layout()
-    output_dir = ensure_output_dir(get_output_dir(config, script_dir))
-    save_plot(fig, output_dir / "differencing_plot.png", dpi=300)
+        plt.tight_layout()
+        output_dir = ensure_output_dir(get_output_dir(config, script_dir))
+        save_plot(fig, output_dir / "differencing_plot.png", dpi=300)
     
-    if config.get("plotting", {}).get("show_plot", True):
-        plt.show()
-    else:
-        plt.close(fig)
+        if config.get("plotting", {}).get("show_plot", True):
+            plt.show()
+        else:
+            plt.close(fig)
 
 
 def main():
