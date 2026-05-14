@@ -2,11 +2,11 @@
 
 Some time series data follows clear trends or patterns, making it hard to model accurately. Most statistical methods assume stationarity -- meaning the average level and variability of the series stay the same over time. But real-world data rarely cooperates. Temperatures rise, economies grow, and demand cycles up and down. If you don't adjust for these trends, your models will misfire.
 
-One of the simplest ways to fix this is **differencing**. Instead of working with the raw values, you subtract each observation from the one before it. This removes trends and makes the data more stable.
+One of the simplest ways to fix this is differencing. Instead of working with the raw values, you subtract each observation from the one before it. This removes trends and makes the data more stable.
 
 # Seeing the Effect of Differencing
 
-To illustrate, consider a time series with a clear upward trend. It keeps climbing, making it obvious that some kind of transformation is needed. The first step is **first-order differencing**, which subtracts each value from the one before it. This flattens a linear trend into a more stable series. If the trend is more complex -- curved instead of straight -- a single difference isn't enough. A **second difference**, which applies the same operation again to the first differenced series, may be needed.
+To illustrate, consider a time series with a clear upward trend. It keeps climbing, making it obvious that some kind of transformation is needed. The first step is first-order differencing, which subtracts each value from the one before it. This flattens a linear trend into a more stable series. If the trend is more complex -- curved instead of straight -- a single difference isn't enough. A second difference, which applies the same operation again to the first differenced series, may be needed.
 
 ![image](img/4.3_differencing.png)
 
@@ -82,11 +82,11 @@ plt.tight_layout() plt.savefig("global_temp_anomalies_analysis.png") plt.show()
 
 # Analysis of Results
 
-- **Original Series** -- The temperature anomalies show a clear trend.
+- Original Series -- The temperature anomalies show a clear trend.
 
-- **First Difference** -- The upward trend is reduced, but patterns remain.
+- First Difference -- The upward trend is reduced, but patterns remain.
 
-- **Second Difference** -- The series fluctuates around a steady mean, meaning it's now stationary.
+- Second Difference -- The series fluctuates around a steady mean, meaning it's now stationary.
 
 Differencing is one of the easiest ways to make a time series stationary. It removes trends, stabilizes the mean, and lets statistical models do their job. After differencing, always check the data to make sure you haven't gone too far -- if the series looks like random noise, you may have overdone it.
 
@@ -97,4 +97,4 @@ Differencing is one of the easiest ways to make a time series stationary. It rem
 - A steady, linear trend needs one difference.
 - A curved, quadratic trend needs two.
 - A more complex trend might need three or more.
-- **Original Series** -- The temperature anomalies show a clear trend.
+- Original Series -- The temperature anomalies show a clear trend.
