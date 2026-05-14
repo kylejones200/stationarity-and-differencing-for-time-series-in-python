@@ -9,7 +9,6 @@ import numpy as np
 import polars as pl
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
 from core import compute_differences, adf_summary, plot_differences
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
