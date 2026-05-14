@@ -29,7 +29,7 @@ def compute_differences(
             FROM current
             ORDER BY "{date_col}"
         """).pl().drop_nulls()
-        results.append(current)
+        pd.concat([results, current])
 
     return results
 

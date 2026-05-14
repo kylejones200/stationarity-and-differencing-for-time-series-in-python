@@ -83,7 +83,7 @@ def compute_differences(series: pd.Series, max_order: int) -> list[pd.Series]:
     current = series
     for _ in range(max_order):
         current = current.diff().dropna()
-        diffs.append(current)
+        pd.concat([diffs, current])
     return diffs
 
 
