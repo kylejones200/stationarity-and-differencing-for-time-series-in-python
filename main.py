@@ -4,7 +4,6 @@ Differencing for Stationarity
 Visualize original series and successive differences (+ADF diagnostics).
 """
 
-import sys
 from pathlib import Path
 
 import logging
@@ -16,10 +15,8 @@ logger = logging.getLogger(__name__)
 # Add src to path
 
 import io
-from typing import Optional
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import requests
 
@@ -74,7 +71,7 @@ def adf_summary(series: pd.Series) -> dict:
     """Calculate ADF test summary."""
     result = adfuller(series.dropna(), autolag="AIC")
     keys = ["ADF Statistic", "p-value", "Lags Used", "Number of Observations"]
-    return {k: v for k, v in zip(keys, result[:4])}
+    return dict(zip(keys, result[:4]))
 
 
 def compute_differences(series: pd.Series, max_order: int) -> list[pd.Series]:

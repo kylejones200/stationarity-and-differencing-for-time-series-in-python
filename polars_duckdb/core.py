@@ -6,17 +6,15 @@ ADF summary statistics are computed via DuckDB rather than returned as raw stats
 
 import duckdb
 import polars as pl
-import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from typing import List, Dict
 
 from statsmodels.tsa.stattools import adfuller
 
 
 def compute_differences(
     df: pl.DataFrame, date_col: str, value_col: str, max_order: int
-) -> List[pl.DataFrame]:
+) -> list[pl.DataFrame]:
     """Return list of DataFrames: original + successive differences via DuckDB LAG()."""
     results = [df.select([date_col, value_col])]
     current = df.select([date_col, value_col])
@@ -34,12 +32,12 @@ def compute_differences(
     return results
 
 
-def adf_summary(series: pl.Series) -> Dict:
+def adf_summary(series: pl.Series) -> dict:
     """Run ADF test on a Polars Series; summarise p-value and statistic via DuckDB."""
     values = series.drop_nulls().to_numpy()
     stat, pval, lags, nobs, *_ = adfuller(values, autolag="AIC")
 
-    df = pl.DataFrame({
+    pl.DataFrame({
         "adf_statistic": [stat],
         "p_value":       [pval],
         "lags_used":     [float(lags)],
@@ -57,10 +55,10 @@ def adf_summary(series: pl.Series) -> Dict:
 
 
 def plot_differences(
-    series_list: List[pl.DataFrame],
+    series_list: list[pl.DataFrame],
     date_col: str,
     value_col: str,
-    adf_results: List[Dict],
+    adf_results: list[dict],
     output_path: Path,
 ):
     n = len(series_list)
