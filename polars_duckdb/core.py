@@ -31,7 +31,7 @@ def compute_differences(
             .pl()
             .drop_nulls()
         )
-        pd.concat([results, current])
+        results.append(current)
 
     return results
 
