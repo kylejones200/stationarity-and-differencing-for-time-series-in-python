@@ -4,22 +4,15 @@ Differencing for Stationarity
 Visualize original series and successive differences (+ADF diagnostics).
 """
 
+import io
 import logging
 from pathlib import Path
-
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-# Add src to path
-
-import io
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import requests
+from statsmodels.tsa.stattools import adfuller
 
-# Import consolidated utilities (signalplot already applied in src/__init__.py)
 from src import (
     ensure_output_dir,
     get_output_dir,
@@ -27,7 +20,14 @@ from src import (
     load_time_series,
     save_plot,
 )
-from statsmodels.tsa.stattools import adfuller
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+# Add src to path
+
+
+
+# Import consolidated utilities (signalplot already applied in src/__init__.py)
 
 
 def fetch_remote_csv(url: str) -> pd.DataFrame:
@@ -45,18 +45,15 @@ def load_series(config: dict) -> pd.Series:
         # Use consolidated loader for local files
         return load_time_series(
             config["data"]["input_file"],
-            date_column=config["data"].get("date_col", "date"),
-            value_column=config["data"].get("value_col", "value"),
+            date_col=config["data"].get("date_col", "date"),
+            value_col=config["data"].get("value_col", "value"),
         )
 
     # Process remote data
-    df[config["data"]["date_col"]] = pd.to_datetime(
-        df[config["data"]["date_col"]], errors="coerce"
-    )
+    df[config["data"]["date_col"]] = pd.to_datetime(df[config["data"]["date_col"]], errors="coerce")
     df = df.dropna(subset=[config["data"]["date_col"], config["data"]["value_col"]])
     df = df.sort_values(config["data"]["date_col"])
     df = df.set_index(config["data"]["date_col"])
-
     if config["data"].get("resample_rule"):
         df = df.resample(config["data"]["resample_rule"]).mean().dropna()
 
@@ -87,6 +84,7 @@ def plot_differences(
     config: dict,
     adf_results: list[dict],
     script_dir: Path,
+    plot: bool = True,
 ) -> None:
     """Plot differences with ADF results."""
     figure_cfg = config["plotting"]
@@ -105,22 +103,16 @@ def plot_differences(
                 linewidth=figure_cfg["linewidth"],
                 alpha=figure_cfg["alpha"],
             )
-
-            title = (
-                config["plot_titles"]["base"] if idx == 0 else f"{idx} order difference"
-            )
+            title = config["plot_titles"]["base"] if idx == 0 else f"{idx} order difference"
             info = adf_results[idx]
-            ax.set_title(
-                f"{title} | ADF: {info['ADF Statistic']:.3f}, p={info['p-value']:.3f}"
-            )
+            ax.set_title(f"{title} | ADF: {info['ADF Statistic']:.3f}, p={info['p-value']:.3f}")
             ax.set_ylabel(config["plotting"].get("y_label", "Value"))
 
         axes[-1].set_xlabel(config["plotting"].get("x_label", "Date"))
-
         plt.tight_layout()
-        output_dir = ensure_output_dir(get_output_dir(config, script_dir))
-        save_plot(fig, output_dir / "differencing_plot.png", dpi=300)
-
+        output_dir = ensure_output_dir(config)
+        fig.savefig(output_dir / "differencing_plot.png", dpi=300, bbox_inches="tight")
+        plt.close(fig)
         if config.get("plotting", {}).get("show_plot", True):
             plt.show()
         else:
@@ -129,27 +121,21 @@ def plot_differences(
 
 def main():
     script_dir = Path(__file__).parent
-
     # Load configuration using consolidated loader
     config = load_config()
-
     # Load series
     series = load_series(config)
     logger.info(f"Loaded {len(series)} data points")
-
     max_order = config["model"]["max_difference_order"]
     series_list = compute_differences(series, max_order)
     adf_results = [adf_summary(s) for s in series_list]
-
     # Save ADF results
-    output_dir = ensure_output_dir(get_output_dir(config, script_dir))
+    output_dir = ensure_output_dir(config)
     metrics_path = output_dir / "adf_results.csv"
     pd.DataFrame(adf_results).to_csv(metrics_path, index=False, encoding="utf-8")
     logger.info(f"ADF results saved to {metrics_path}")
-
     # Plot differences
     plot_differences(series_list, config, adf_results, script_dir)
-
     logger.info("\n Differencing analysis complete")
 
 

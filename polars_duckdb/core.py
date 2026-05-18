@@ -18,7 +18,6 @@ def compute_differences(
     """Return list of DataFrames: original + successive differences via DuckDB LAG()."""
     results = [df.select([date_col, value_col])]
     current = df.select([date_col, value_col])
-
     for order in range(1, max_order + 1):
         current = (
             duckdb.sql(f"""
@@ -40,7 +39,6 @@ def adf_summary(series: pl.Series) -> dict:
     """Run ADF test on a Polars Series; summarise p-value and statistic via DuckDB."""
     values = series.drop_nulls().to_numpy()
     stat, pval, lags, nobs, *_ = adfuller(values, autolag="AIC")
-
     pl.DataFrame(
         {
             "adf_statistic": [stat],
@@ -87,9 +85,7 @@ def plot_differences(
             )
             info = adf_results[idx]
             label = "Original" if idx == 0 else f"Order-{idx} difference"
-            ax.set_title(
-                f"{label}  |  ADF: {info['adf_statistic']}  p={info['p_value']}"
-            )
+            ax.set_title(f"{label}  |  ADF: {info['adf_statistic']}  p={info['p_value']}")
             ax.set_ylabel("Value")
 
         axes[-1].set_xlabel("Index")
